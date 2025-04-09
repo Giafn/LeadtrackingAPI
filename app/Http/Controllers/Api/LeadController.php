@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class LeadController extends Controller
 {
@@ -125,17 +126,24 @@ class LeadController extends Controller
             ], 422);
         }
 
+        if (!Str::isUuid($leadId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lead not found',
+            ], 400);
+        }
+
+        $lead = Lead::where('id', $leadId)->first();
+
+        if (!$lead) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lead not found',
+            ], 404);
+        }
+
         try {
             DB::beginTransaction();
-
-            $lead = Lead::find($leadId);
-
-            if (!$lead) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Lead not found',
-                ], 404);
-            }
 
             $lead->status = $request->new_status;
             $lead->due_date = $this->calculateDueDate($request->new_status);
