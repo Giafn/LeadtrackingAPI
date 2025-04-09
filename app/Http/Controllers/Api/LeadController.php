@@ -11,14 +11,56 @@ use Illuminate\Support\Facades\Validator;
 
 class LeadController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $leads = Lead::with('histories:id,lead_id,status,changed_at,notes')
-            ->orderBy('created_at', 'desc')
+        $validator = Validator::make($request->all(), [
+            'per_page' => 'nullable|numeric|min:1',
+            'status' => 'nullable|in:New,Prospect,Proses Dokumen & Legal,Selesai',
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $query = Lead::with('histories:id,lead_id,status,changed_at,notes')
             ->select('id', 'name', 'email', 'phone', 'location', 'status', 'due_date', 'created_at')
-            ->get();
-        return response()->json(['success' => true, 'data' => $leads], 200);
+            ->orderBy('created_at', 'desc');
+
+        // filters
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%$search%")
+                ->orWhere('email', 'ilike', "%$search%")
+                ->orWhere('phone', 'ilike', "%$search%")
+                ->orWhere('location', 'ilike', "%$search%");
+            });
+        }
+
+        // Pagination
+        $perPage = $request->input('per_page', 10);
+        $paginated = $query->paginate($perPage);
+
+        // Generate meta
+        $meta = collect($paginated)->only([
+            'current_page', 'last_page', 'from', 'to', 'per_page', 'total'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $paginated->items(),
+            'meta' => $meta,
+        ], 200);
     }
+
 
     public function store(Request $request)
     {
