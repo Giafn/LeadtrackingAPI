@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', LoginController::class)->name('login');
 
 // route group for authenticated users
+Route::post('/leads', [LeadController::class, 'store']);
+
 Route::middleware('auth:api')->group(function () {
     Route::get('/leads', [LeadController::class, 'index']);
-    Route::post('/leads', [LeadController::class, 'store']);
     Route::put('/leads/{leadId}/status', [LeadController::class, 'updateStatus']);
 });

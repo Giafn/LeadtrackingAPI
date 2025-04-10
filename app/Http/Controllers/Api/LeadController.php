@@ -65,6 +65,23 @@ class LeadController extends Controller
 
     public function store(Request $request)
     {
+
+        // check header Token
+        $token = $request->header('Token');
+        if (!$token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Not Authorized'
+            ]);
+        }
+
+        if ($token !== env('GOOGLE_FORM_TOKEN')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Not Authorized'
+            ]);
+        }
+
         $validateData = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:leads,email|max:255',
