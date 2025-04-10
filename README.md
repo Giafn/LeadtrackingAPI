@@ -1,66 +1,167 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# 📊 Lead Tracking API
 
-## About Laravel
+Tugas Laravel API untuk sistem pelacakan leads, digunakan sebagai backend tugas integrasi dengan Google Form dan sistem login menggunakan JWT.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+----------
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🌐 Online Endpoint
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Base URL:
 
-## Learning Laravel
+```
+https://leadtrack.giafauzan.my.id/api
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+----------
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🔐 Autentikasi
 
-## Laravel Sponsors
+### 1. Login (JWT)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Digunakan untuk login dan mendapatkan JWT token.
 
-### Premium Partners
+-   **Endpoint:** `POST /login`
+    
+-   **Headers:** None
+    
+-   **Body:**
+    
+    ```json
+    {
+      "email": "admin@realestate.com",
+      "password": "password"
+    }
+    
+    ```
+    
+-   **Response (Success):**
+    
+    ```json
+    {
+	    "success":true,
+	    "user":{
+		    "id":"faae806e-a752-4e3a-a4b5-e1b555224665",
+			"name":"Admin",
+			"email":"admin@realestate.com"
+			},
+		"token":"eyJ0eXAiOiJKV1QiLCJhbGci.."
+	}
+    
+    ```
+    
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+----------
 
-## Contributing
+## 📅 Leads
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Get All Leads (JWT Required)
 
-## Code of Conduct
+-   **Endpoint:** `GET /leads`
+    
+-   **Headers:**
+    
+    ```
+    Authorization: Bearer <JWT_TOKEN>
+    
+    ```
+    
+-   **Query Parameters (optional):**
+    
+    -   `status`: Filter berdasarkan status (New,Prospect,Proses Dokumen & Legal,Selesai)
+        
+    -   `search`: Pencarian bebas ke semua kolom
+        
+    -   `per_page`: Jumlah item per halaman
+        
+    -   `page`: Nomor halaman
+        
+-   **Example:**
+    
+    ```
+    GET /leads?status=New&search=john&per_page=10&page=2
+    
+    ```
+    
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+----------
 
-## Security Vulnerabilities
+### 3. Create Lead (Token Only)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+-   **Endpoint:** `POST /leads`
+    
+-   **Headers:**
+    
+    ```
+    Token: secret
+    
+    ```
+    
+-   **Body:**
+    
+    ```json
+    {
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "08123456789",
+      "location": "Jl. Merdeka No.123"
+    }
+    
+    ```
+    
 
-## License
+> Token dapat diubah di file `.env` menggunakan key `GOOGLE_FORM_TOKEN`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+----------
+
+### 4. Update Lead Status (JWT Required)
+
+-   **Endpoint:** `PUT /leads/{leadId}/status`
+    
+-   **Headers:**
+    
+    ```
+    Authorization: Bearer <JWT_TOKEN>
+    
+    ```
+    
+-   **Body:**
+    
+    ```json
+    {
+      "new_status": "Selesai",// New,Prospect,Proses Dokumen & Legal,Selesai
+      "notes": "Lunas"
+    }
+    
+    ```
+    
+
+----------
+
+## 📄 Google Form Integration
+
+-   Google Form: [https://forms.gle/hu79TwLVrRz1iToB6](https://forms.gle/hu79TwLVrRz1iToB6)
+    
+-   Form ini akan memicu Google Apps Script yang mengirimkan data ke endpoint `POST /leads` dengan header `Token`.
+    
+
+----------
+
+## 🚀 Repository
+
+-   GitHub: [https://github.com/Giafn/LeadtrackingAPI](https://github.com/Giafn/LeadtrackingAPI)
+    
+
+----------
+
+## 🔧 Seeder Default Login
+
+Digunakan untuk testing login JWT:
+
+-   **Email:** `admin@realestate.com`
+    
+-   **Password:** `password`
+    
+
+----------
