@@ -94,7 +94,7 @@ Digunakan untuk login dan mendapatkan JWT token.
 -   **Headers:**
     
     ```
-    Token: secret
+    Token: "secret" //default token
     
     ```
     
