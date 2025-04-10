@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -29,5 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 'success' => false,
                 'message' => 'Unauthorized',
             ], 401);
+        })->render(function (MethodNotAllowedHttpException $e, Request $request) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Method Not Allowed',
+            ], 405);
         });
     })->create();
